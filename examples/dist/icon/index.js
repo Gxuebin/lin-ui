@@ -1,23 +1,22 @@
 Component({
-  externalClasses: ['l-class', 'l-class-self', 'l-self-class'],
+  externalClasses: ['l-class'],
   options: {
     addGlobalClass: true
   },
   properties: {
     name: String,
-    color: String,
-    size: String,
-  },
-
-  data: {
-    default: {
-      size: 40,
-      color: '#45526B',
+    color: {
+      type: String,
+      value: '#3963bc'
+    },
+    size: {
+      type: String,
+      value: '40'
     },
   },
 
   ready: function () {
-    if (!this.data.name) {
+    if (!this.properties.name) {
       console.error('请传入Icon组件的name属性');
     }
   },

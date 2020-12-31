@@ -1,12 +1,13 @@
 // input/input.js
 import rules from '../behaviors/rules';
+import eventBus from '../core/utils/event-bus';
 
 Component({
   /**
    * 组件的属性列表
    */
   behaviors: ['wx://form-field', rules],
-  externalClasses: ['l-class', 'l-error-text', 'l-error-text-class'],
+  externalClasses: ['l-class', 'l-error-text', 'l-error-text-class', 'l-inner-class'],
   properties: {
     // 占位文本
     placeholder: {
@@ -52,19 +53,22 @@ Component({
     rules: {
       type: Object,
     },
-    // 占位文字的样式  
+    // 占位文字的样式
     placeholderStyle: {
       type: String,
       value: ''
+    },
+    // 光标与键盘的距离
+    cursorSpacing: {
+      type: Number,
+      value: 0
     }
   },
 
   /**
    * 组件的初始数据
    */
-  data: {
-
-  },
+  data: {},
 
   attached() {
     this.initRules();
@@ -85,7 +89,7 @@ Component({
       this.setData({
         value
       });
-
+      eventBus.emit(`lin-form-change-${this.id}`, this.id);
       this.triggerEvent('lininput', event.detail);
     },
 
@@ -95,15 +99,19 @@ Component({
 
     handleInputBlur(event) {
       this.validatorData({
-        value: event.detail.value
+        [this.data.name]: event.detail.value
       });
+      eventBus.emit(`lin-form-blur-${this.id}`, this.id);
       this.triggerEvent('linblur', event.detail);
     },
     handleInputConfirm(event) {
       this.triggerEvent('linconfirm', event.detail);
     },
-    // onClearTap(e) {
-    //   this.setData({ value: '' })
-    // },
+    getValues() {
+      return this.data.value;
+    },
+    reset() {
+      this.data.value = '';
+    }
   }
 });

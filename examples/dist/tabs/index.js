@@ -19,16 +19,15 @@ Component({
     'l-line-class',
     'l-tabimage-class',
     'l-header-line-class',
-    'l-icon-class'
+    'l-icon-class',
+    'l-tabpanel-class',
+    'l-badge-class'
   ],
   relations: {
     '../tabpanel/index': {
       type: 'child',
       linked() {
         // 每次有子节点被插入时执行，target是该节点实例对象，触发在该节点attached生命周期之后
-        this.initTabs();
-      },
-      unlinked() {
         this.initTabs();
       }
     },
@@ -68,8 +67,9 @@ Component({
     equalWidth: {
       type: Boolean,
       value: true
-    }
-
+    },
+    // 内容区域高度
+    contentHeight: Number
   },
 
   data: {
@@ -80,11 +80,11 @@ Component({
   },
   observers: {
     'activeKey': function (newKey) {
-      if(!newKey) return;
-      const index = this.data.tabList.findIndex(tab=>tab.key===newKey);
+      if (!newKey) return;
+      const index = this.data.tabList.findIndex(tab => tab.key === newKey);
       this.setData({
-        currentIndex:index
-      },() => {
+        currentIndex: index
+      }, () => {
         if (this.data.scrollable) {
           this.queryMultipleNodes();
         }
@@ -108,16 +108,9 @@ Component({
           currentIndex = this.data.currentIndex;
         const tab = items.map((item, index) => {
 
-          activeKey = !val && index == 0 ? item.data.key : activeKey;
+          activeKey = !val && index === 0 ? item.data.key : activeKey;
           currentIndex = item.data.key === activeKey ? index : currentIndex;
-          return {
-            tab: item.data.tab,
-            key: item.data.key,
-            icon: item.data.icon,
-            iconSize: item.data.iconSize,
-            image: item.data.image,
-            picPlacement: item.data.picPlacement,
-          };
+          return { ...item.data };
         });
         this.setData({
           tabList: tab,
@@ -135,7 +128,7 @@ Component({
         source,
         current
       } = e.detail;
-      if (source == 'touch') {
+      if (source === 'touch') {
         const currentIndex = current;
         const activeKey = this.data.tabList[current].key;
         this._setChangeData({

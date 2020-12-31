@@ -1,9 +1,13 @@
 const {
   buildWxss,
+  buildWxml,
+  buildImage,
+  buildJson,
+  buildJs,
   copyStatic,
   clean,
   copy
-} = require('./build');
+} = require('./task');
 const {
   series,
   parallel,
@@ -12,8 +16,8 @@ const {
 const path = require('path');
 
 const componentData = require('./until');
-const result = `{common/*,behaviors,utils,${componentData()}}`;
-const isCustom = (result !== `{common/*,behaviors,utils,}`);
+const result = `{common/*,core/*,behaviors,utils,${componentData()}}`;
+const isCustom = (result !== '{common/*,core/*,behaviors,utils,}');
 
 const distPath = path.resolve(__dirname, '../dist');
 const examplePath = path.resolve(__dirname, '../examples/dist');
@@ -28,6 +32,23 @@ module.exports = {
       buildWxss(
         `${srcProPath}/*.less`,
         `!${srcProPath}/_*.less`,
+        distPath
+      ),
+      buildWxml(
+        `${srcProPath}/*.wxml`,
+        `!${srcProPath}/_*.wxml`,
+        distPath
+      ),
+      buildImage(
+        `${srcProPath}/*.png`,
+        distPath
+      ),
+      buildJson(
+        `${srcProPath}/*.json`,
+        distPath
+      ),
+      buildJs(
+        `${srcProPath}/*.js`,
         distPath
       ),
       copyStatic(
@@ -46,17 +67,18 @@ module.exports = {
       ),
       copyStatic(
         srcDevPath,
-        examplePath
+        examplePath,
+        'dev'
       )
     )
   ),
   watch: parallel(
     () => {
-      watch(`${srcDevPath}/*.less`, buildWxss(`${srcDevPath}/*.less`, `!${srcDevPath}/_*.less`, examplePath));
-      watch(`${srcDevPath}/*.wxml`, copy(srcDevPath, examplePath, 'wxml'));
-      watch(`${srcDevPath}/*.wxs`, copy(srcDevPath, examplePath, 'wxs'));
-      watch(`${srcDevPath}/*.json`, copy(srcDevPath, examplePath, 'json'));
-      watch(`${srcDevPath}/*.js`, copy(srcDevPath, examplePath, 'js'));
+      watch('../src/**/*.less', buildWxss(`${srcDevPath}/*.less`, `!${srcDevPath}/_*.less`, examplePath));
+      watch('../src/**/*.wxml', copy(srcDevPath, examplePath, 'wxml'));
+      watch('../src/**/*.wxs', copy(srcDevPath, examplePath, 'wxs'));
+      watch('../src/**/*.json', copy(srcDevPath, examplePath, 'json'));
+      watch('../src/**/*.js', copy(srcDevPath, examplePath, 'js'));
     }
   )
 };

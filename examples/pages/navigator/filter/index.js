@@ -1,5 +1,6 @@
 // pages/navigator/filter/index.js
 import { filterNaviConfigs, baseNaviConfigs} from './filter-navi.js';
+import tabbar from '../../tabbar';
 Page({
 
   /**
@@ -7,13 +8,14 @@ Page({
    */
   data: {
     filterNaviConfigs: filterNaviConfigs,
-    baseNaviConfigs: baseNaviConfigs
+    baseNaviConfigs: baseNaviConfigs,
+    list:tabbar
   },
 
   /**
    * Lifecycle function--Called when page load
    */
-  onLoad: function(options) {
+  onLoad: function() {
 
   },
 
@@ -65,4 +67,4 @@ Page({
   onShareAppMessage: function() {
 
   }
-})
+});

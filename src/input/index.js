@@ -1,4 +1,6 @@
 // input/input.js
+import eventBus from '../core/utils/event-bus.js';
+import validator from '../behaviors/validator';
 import rules from '../behaviors/rules';
 
 Component({
@@ -8,64 +10,38 @@ Component({
   options: {
     multipleSlots: true,
   },
-  behaviors: ['wx://form-field', rules],
-  externalClasses: ['l-class', 'l-label-class','l-error-text','l-error-text-class'],
+  behaviors: ['wx://form-field', validator, rules],
+  externalClasses: ['l-class', 'l-label-class', 'l-error-text', 'l-error-text-class','l-input-class','l-row-class'],
   properties: {
     // 表单标题（label）的文本
-    label: {
-      type: String,
-      value: ''
-    },
+    label: String,
     // 是否隐藏label
-    hideLabel:{
-      type: Boolean,
-      value: false
-    },
+    hideLabel: Boolean,
     // 是否自定义label部分
-    labelCustom: {
-      type: Boolean,
-      value: false
-    },
+    labelCustom: Boolean,
     // 是否显示下划线
     showRow: {
       type: Boolean,
       value: true
     },
     // 是否必选
-    required: {
-      type: Boolean,
-      value: false
-    },
+    required: Boolean,
     // 占位文本
-    placeholder: {
-      type: String,
-      value: ''
-    },
+    placeholder: String,
     // 输入框类型
     type: {
       type: String,
-      value: 'text'
+      value: 'text',
+      options: ['text', 'idcard', 'digit', 'password', 'number']
     },
     // 输入框的值
-    value: {
-      type: String,
-      value: ''
-    },
+    value: String,
     // 是否需要冒号
-    colon: {
-      type: Boolean,
-      value: false
-    },
+    colon: Boolean,
     // 获取焦点
-    focus: {
-      type: Boolean,
-      value: false
-    },
+    focus: Boolean,
     // 是否显示清除按钮
-    clear: {
-      type: Boolean,
-      value: false
-    },
+    clear: Boolean,
     // 最大输入长度
     maxlength: {
       type: Number,
@@ -74,7 +50,7 @@ Component({
     // 表单项的宽度，单位rpx
     width: {
       type: Number,
-      value: 750
+      value: null
     },
     // 表单项标题部分的宽度，单位rpx
     labelWidth: {
@@ -84,28 +60,26 @@ Component({
     // label标题的显示位置 left top right
     labelLayout: {
       type: String,
-      value: 'left'
+      value: 'left',
+      options: ['left', 'right']
     },
     // 是否禁用
-    disabled: {
+    disabled: Boolean,
+    // 占位文字的样式
+    placeholderStyle: String,
+    // 是否显示显隐密码图标
+    showEye: {
       type: Boolean,
       value: false
-    },
-    // 占位文字的样式  
-    placeholderStyle: {
-      type: String,
-      value: ''
-    },
+    }
   },
 
   /**
    * 组件的初始数据
    */
-  data: {
-
-  },
+  data: {},
   attached() {
-    this.initRules();
+    // this.initRules();
   },
   /**
    * 组件的方法列表
@@ -123,7 +97,7 @@ Component({
       this.setData({
         value
       });
-
+      eventBus.emit(`lin-form-change-${this.id}`, this.id);
       this.triggerEvent('lininput', event.detail);
     },
 
@@ -133,8 +107,9 @@ Component({
 
     handleInputBlur(event) {
       this.validatorData({
-        value: event.detail.value
+        [this.data.name]: event.detail.value
       });
+      eventBus.emit(`lin-form-blur-${this.id}`, this.id);
       this.triggerEvent('linblur', event.detail);
     },
     handleInputConfirm(event) {
@@ -157,5 +132,29 @@ Component({
       });
       this.triggerEvent('linclear', event.detail);
     },
+    getValues() {
+      return this.data.value;
+    },
+    reset() {
+      this.setData({
+        value: ''
+      });
+    },
+
+    /**
+     * 监听：点击输入框右侧显隐密码图标
+     */
+    onTapEyeIcon() {
+      const type = this.data.type;
+      if (type === 'text') {
+        this.setData({
+          type: 'password'
+        });
+      } else if (type === 'password') {
+        this.setData({
+          type: 'text'
+        });
+      }
+    }
   }
 });

@@ -1,5 +1,9 @@
+import eventBus from '../core/utils/event-bus';
+import rules from '../behaviors/rules';
+
+
 Component({
-  behaviors: ['wx://form-field'],
+  behaviors: ['wx://form-field',rules],
   externalClasses: ['l-class', 'l-error-text', 'l-error-text-class'],
   relations: {
     '../checkbox/index': {
@@ -40,24 +44,24 @@ Component({
 
     init(target) {
       if(this._keys === undefined) this._keys = {};
-      // if(this._selected === undefined) this._selected = {};
-      // this.checkDefaultItem(target);
+      if(this._selected === undefined) this._selected = {};
+      this.checkDefaultItem(target);
       this.checkedKeyRepeat(target);
     },
 
     checkedKeyRepeat(target) {
       let { key } = target.properties;
       if(this._keys[key]) {
-        throw new Error(`keys有重复元素, chekbox的key属性不能重复：${key}`);
+        throw new Error(`keys有重复元素, checkbox的key属性不能重复：${key}`);
       } else {
         this._keys[key] = true;
       }
     },
 
     checkDefaultItem(target) {
-      const { key, checked } = target.properties;
+      const { key, checked, cell } = target.properties;
       if(checked) {
-        this._selected[key] = checked;
+        this._selected[key] = {...cell,checked:true, value: key};
       }
     },
 
@@ -74,12 +78,17 @@ Component({
     },
 
     onEmitEventHandle(currentItem) {
-      // currentItem.checked ? this.addSelect(currentItem.key):this.removeSelect(currentItem.key);
+      currentItem.checked ? this.addSelect (currentItem):this.removeSelect(currentItem.key);
+
+      this.validatorData({
+        [this.data.name]: Object.values(this._selected)
+      });
 
       this.triggerEvent('linchange', currentItem, {
         bubbles: true,
         composed: true
       });
+      eventBus.emit(`lin-form-change-${this.id}`,this.id);
     },
     onEmitOverflowHandle(data){
       this.triggerEvent('linout', data, {
@@ -90,16 +99,21 @@ Component({
     removeSelect(key) {
       delete this._selected[key];
     },
-    addSelect(key) {
-      this._selected[key] = key;
+    addSelect(currentItem) {
+      let {key, ...obj} = currentItem;
+      this._selected[key] = {...obj, value: key};
     },
-    _selected(){
-      const items = this.getRelationNodes('../checkbox/index');
-      let num = 0;
-      items.map(item=> {
-        item.properties.checked ? num++ : '';
+    getValues() {
+      return Object.values(this._selected);
+    },
+    reset() {
+      this._selected = {};
+      const list =  this.getRelationNodes('../checkbox/index');
+      return list.forEach(item => {
+        return item.setData({
+          checked: false
+        });
       });
-      return num;
     }
 
   }

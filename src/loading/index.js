@@ -1,32 +1,29 @@
 import computeOffset from '../behaviors/computeOffset';
+import validator from '../behaviors/validator';
+
 Component({
-  behaviors: [computeOffset],
+  behaviors: [computeOffset, validator],
   externalClasses: ['l-container-class', 'l-class'],
-  options: {
-    multipleSlots: true
-  },
   properties: {
     // 显示与隐藏
     show: {
       type: Boolean,
       value: false
     },
-    opacity:{
+    opacity: {
       type: String,
       value: '1'
     },
-    bgColor: {
-      type: String,
-      value: '#fff'
-    },
+    bgColor: String,
     zIndex:{
-      type: Number,
-      value: 776
+      type:String,
+      value: '776'
     },
     // 类型
     type: {
       type: String,
-      value: 'rotate'
+      value: 'rotate',
+      options: ['flash', 'flip', 'change', 'rotate', 'circle']
     },
     // 动画颜色
     color: {

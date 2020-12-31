@@ -1,7 +1,8 @@
 @import "../../config/styles/_base.less";
+@import "../../config/styles/_mixins.less";
 
-.btn-hover{
-    opacity: 0.8;
+.btn-hover::before{
+    .active();
 }
 
 .special-container{
@@ -38,7 +39,6 @@
     // Size
     &-long{
         border-radius: 0;
-        margin: 0;
         height: 88rpx;
         width: 100%;
     }
@@ -50,7 +50,7 @@
         height: @btn-height-large;
         min-width: @btn-width-large;
     }
-    &-mini { 
+    &-mini {
         height: @btn-height-mini;
         min-width: @btn-width-mini;
         font-size: @size-font-mini;
@@ -92,7 +92,7 @@
         border-radius: @btn-circle-size/5;
     }
     &-large&-circle{
-        border-radius: @btn-circle-size-large/5;  
+        border-radius: @btn-circle-size-large/5;
     }
     &-mini&-circle{
         border-radius: @btn-circle-size-mini/5;
@@ -154,7 +154,6 @@
     // Disabled
     &-disabled{
         opacity: 0.8;
-        background-color: @disabled-color;
     }
 }
 
@@ -170,6 +169,9 @@
         margin-right: 18rpx
     }
     &-large{
+        margin-right: 24rpx
+    }
+    &-long{
         margin-right: 24rpx
     }
 }

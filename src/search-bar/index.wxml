@@ -1,7 +1,7 @@
 <view class="search-bar l-container-class">
   <slot name="before"/>
-  <view wx:if="{{address}}" class="icon-container">
-    <text class="city">{{address}}</text>
+  <view wx:if="{{frontText}}" class="icon-container" mut-bind:tap="handleTapFrontText">
+    <text class="city">{{frontText}}</text>
     <l-icon name="down" color="#333" size="22" />
   </view>
   <view class="search-input l-class {{'search-input-'+ shape}}" style="{{'background-color:'+bgColor}}">
@@ -23,15 +23,15 @@
         bindfocus="handleInputFocus"
         bindblur="handleInputBlur"
         bindconfirm="handleInputConfirm"/>
-    <view class="close-wrap" wx:if="{{clear&&value}}" bindtap="onClearTap">
+    <view class="close-wrap" wx:if="{{clear&&value}}" mut-bind:tap="onClearTap">
         <view class="close">
             <l-icon  name="close" color="#fff" size="15" />
         </view>
     </view>
   </view>
-  <view wx:if="{{showCancel}}" 
-        class="cancle l-cancel-class" 
-        bindtap="onCancel">
+  <view wx:if="{{showCancel}}"
+        class="cancel l-cancel-class"
+        mut-bind:tap="onCancel">
         {{cancelText}}
   </view>
   <slot name="after"/>

@@ -2,8 +2,8 @@ import scrollCenter from '../behaviors/scrollCenter';
 
 Component({
   /**
-     * 组件的属性列表
-     */
+   * 组件的属性列表
+   */
   behaviors: [scrollCenter],
   externalClasses: [
     'l-class',
@@ -24,18 +24,16 @@ Component({
     'l-badge-class'
   ],
   options: {
-    multipleSlots: true // 在组件定义时的选项中启用多slot支持
+    multipleSlots: true,
+    pureDataPattern: /^_/
   },
 
   relations: {
     '../segment-item/index': {
       type: 'child',
-      linked() {
+      linked(target) {
         // 每次有子节点被插入时执行，target是该节点实例对象，触发在该节点attached生命周期之后
-        this.initTabs();
-      },
-      unlinked() {
-        this.initTabs();
+        this.initTabs(target);
       }
     },
   },
@@ -75,35 +73,58 @@ Component({
     itemWidth: Number
   },
 
-  /**
-     * 组件的初始数据
-     */
-  data: {
-    tabList: [],
-    currentIndex: 0
+  observers: {
+    'activeKey': function (newKey) {
+      if (!newKey) return;
+      const index = this.data.tabList.findIndex(tab => tab.key === newKey);
+      this.setData({
+        currentIndex: index
+      }, () => {
+        if (this.data.scrollable) {
+          this.queryMultipleNodes();
+        }
+      });
+    }
   },
 
   /**
-     * 组件的方法列表
-     */
+   * 组件的初始数据
+   */
+  data: {
+    // segment-item 绑定的 data-cell 数据
+    _cells:[],
+    tabList: [],
+    currentIndex: 0,
+    _segmentItemInstances: []
+  },
+
+  /**
+   * 组件的方法列表
+   */
   methods: {
-    initTabs(val = this.data.activeKey) {
+    initTabs(segmentItemInstance) {
+      const val = this.data.activeKey;
       let items = this.getRelationNodes('../segment-item/index');
       if (items.length > 0) {
-        if (items.length === this.data.tabList.length) return;
+        if (items.length === this.data.tabList.length && this.data._segmentItemInstances.indexOf(segmentItemInstance) > 0) return;
         let activeKey = val,
           currentIndex = this.data.currentIndex;
+        let _cells = [];
         const tab = items.map((item, index) => {
-          activeKey = !val && index == 0 ? item.data.key : activeKey;
+          activeKey = !val && index === 0 ? item.data.key : activeKey;
           currentIndex = item.data.key === activeKey ? index : currentIndex;
+          // 存储 segment-item 绑定的 data-cell 数据
+          _cells[index] = item.dataset.cell;
           return {
             ...item.data
           };
         });
         this.setData({
-          tabList: tab,
+          _cells,
           activeKey,
+          tabList: tab,
           currentIndex,
+          _segmentItemInstances: items
         }, () => {
           if (this.data.scrollable) {
             this.queryMultipleNodes();
@@ -135,7 +156,8 @@ Component({
       });
       this.triggerEvent('linchange', {
         activeKey,
-        currentIndex
+        currentIndex,
+        cell:this.data._cells[currentIndex]
       });
     }
   }

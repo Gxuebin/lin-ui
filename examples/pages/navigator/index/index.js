@@ -1,10 +1,13 @@
 //index.js
 import naviConfigs from './navi.js';
+import tabbar from '../../tabbar';
 Page({
   data: {
-    naviConfigs: naviConfigs
+    naviConfigs: naviConfigs,
+    list:tabbar
   },
-  onLoad() {
+
+  onLoad: function() {
   },
 
   onShareAppMessage() {
